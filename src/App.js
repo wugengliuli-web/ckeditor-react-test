@@ -7,6 +7,7 @@ import classnames from 'classnames'
 //import InlineEditor from '@ckeditor/ckeditor5-build-inline/build/ckeditor.js'
 //import '@ckeditor/ckeditor5-build-inline/build/translations/zh-cn'
 import InlineEditor from './ckeditor5-build-inline/build/ckeditor'
+import './ckeditor5-build-inline/build/translations/zh-cn'
 import UpLoader from './component/uploader';
 class App extends Component {
 	constructor(props) {
@@ -95,7 +96,10 @@ class App extends Component {
 															'link',
 															'bulletedList',
 															'numberedList',
+															'fontcolor',
+															'fontbackgroundcolor',
 															'imageUpload',
+															'alignment',
 															'insertTable',
 															'mediaEmbed',
 															'undo',
