@@ -4,8 +4,9 @@ import img from './img/test.jpg'
 import 'antd/dist/antd.css';
 import { Icon, Spin, Divider } from 'antd'
 import classnames from 'classnames'
-import InlineEditor from '@ckeditor/ckeditor5-build-inline/build/ckeditor.js'
-import '@ckeditor/ckeditor5-build-inline/build/translations/zh-cn'
+//import InlineEditor from '@ckeditor/ckeditor5-build-inline/build/ckeditor.js'
+//import '@ckeditor/ckeditor5-build-inline/build/translations/zh-cn'
+import InlineEditor from './ckeditor5-build-inline/build/ckeditor'
 import UpLoader from './component/uploader';
 class App extends Component {
 	constructor(props) {
