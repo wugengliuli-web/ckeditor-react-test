@@ -6,7 +6,7 @@ import { Icon, Spin, Divider } from 'antd'
 import classnames from 'classnames'
 import InlineEditor from '@ckeditor/ckeditor5-build-inline/build/ckeditor.js'
 import '@ckeditor/ckeditor5-build-inline/build/translations/zh-cn'
-console.log(InlineEditor)
+import UpLoader from './component/uploader';
 class App extends Component {
 	constructor(props) {
 		super(props)
@@ -21,6 +21,7 @@ class App extends Component {
 			dividerPosition: -1, //0 - editors.length
 		}
 		this.editors = []
+		this.datas = []
 		this.timer = 300
 		this.type = null  //判断当前加载的是什么类型的编辑器
 		this.dragStart = this.dragStart.bind(this)
@@ -36,6 +37,7 @@ class App extends Component {
 		this.formatEditors = this.formatEditors.bind(this)
 		this.addDivider = this.addDivider.bind(this)
 		this.delDivider = this.delDivider.bind(this)
+		this.saveData = this.saveData.bind(this)
 	}
   	render() {
 		return (
@@ -106,6 +108,9 @@ class App extends Component {
 														setTimeout(() => {
 															this.changeReady(i)
 														},200)
+													}}
+													onChange = {(event, editor) => {
+														this.saveData(i, editor)
 													}}
 												></CKEditor>
 												<div className="iconRight" style={{
@@ -191,7 +196,8 @@ class App extends Component {
 							}}>{v}</li>
 						))
 					}
-				</ul>
+					<UpLoader></UpLoader>
+				</ul>	
 			</div>
 		)
 	}
@@ -231,9 +237,14 @@ class App extends Component {
 			type: 'editor'
 		}
 		let editors = this.state.editors
+		
 		let dividerPosition = this.state.dividerPosition
 		editors.splice(dividerPosition, 0, obj)
-
+		this.datas.splice(dividerPosition, 0, data)
+		editors = editors.map((v, i) => {
+			v.data = this.datas[i]
+			return v
+		})
 		this.setState({
 			editors,
 			dividerPosition: -1
@@ -283,15 +294,18 @@ class App extends Component {
 
 	createData(type) {
 		let list = this.state.list
+		let ans = ''
 		if(type === list[0]) {
-			return '<h2></h2>'
+			ans = '<h2></h2>'
 		} else if(type === list[1]) {
-			return '<p></p>'
+			ans = '<p></p>'
 		} else if(type === list[2]) {
-			return `<img src=${img}></img>`
+			ans = `<img src=${img}></img>`
 		} else if(type === list[3]) {
-			return '<blockquote><p></p></blockquote>'
+			ans = '<blockquote><p></p></blockquote>'
 		}
+		this.datas.push(ans)
+		return ans
 	}
 
 	changeReady(i) {
@@ -312,6 +326,7 @@ class App extends Component {
 		let index = parseInt(e.target.getAttribute('data-index'))
 		let editors = [...this.state.editors]
 		editors.splice(index, 1)
+		this.datas.splice(index, 1)
 		this.setState({
 			editors
 		})
@@ -366,6 +381,9 @@ class App extends Component {
 			}
 		}
 		return editors
+	}
+	saveData(i, editor) {
+		this.datas[i] = editor.getData()
 	}
 }
 
