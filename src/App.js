@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import img from './img/test.jpg'
 import 'antd/dist/antd.css';
-import { Icon, Spin, Divider } from 'antd'
+import { Icon, Spin, Divider, Input } from 'antd'
 import classnames from 'classnames'
 //import InlineEditor from '@ckeditor/ckeditor5-build-inline/build/ckeditor.js'
 //import '@ckeditor/ckeditor5-build-inline/build/translations/zh-cn'
@@ -17,9 +17,11 @@ class App extends Component {
 				'Head',
 				'Text',
 				'Img',
-				'block'
+				'block',
+				'Title'
 			],
 			editors: [],
+			title: '',
 			dividerPosition: -1, //0 - editors.length
 		}
 		this.editors = []
@@ -40,6 +42,7 @@ class App extends Component {
 		this.addDivider = this.addDivider.bind(this)
 		this.delDivider = this.delDivider.bind(this)
 		this.saveData = this.saveData.bind(this)
+		this.titleChange = this.titleChange.bind(this)
 	}
   	render() {
 		return (
@@ -98,6 +101,7 @@ class App extends Component {
 															'numberedList',
 															'fontcolor',
 															'fontbackgroundcolor',
+															'fontsize',
 															'imageUpload',
 															'alignment',
 															'insertTable',
@@ -109,6 +113,7 @@ class App extends Component {
 													key={i}
 													editor={ v.editor }
 													data = {v.data}
+													disabled = {v.isOnlyRead}
 													onInit = {editor => {
 														setTimeout(() => {
 															this.changeReady(i)
@@ -202,6 +207,10 @@ class App extends Component {
 						))
 					}
 					<UpLoader></UpLoader>
+					<Input style={{
+						marginTop: '30px',
+						'marginRight': '50px'
+					}} placeholder="输入标题" value={this.state.title} onChange={e => this.titleChange(e)}  />
 				</ul>	
 			</div>
 		)
@@ -239,7 +248,8 @@ class App extends Component {
 			sideTool: false,
 			wrapperDom: null,
 			sumHeight: 0,
-			type: 'editor'
+			type: 'editor',
+			isOnlyRead: this.type === 'Title'
 		}
 		let editors = this.state.editors
 		
@@ -308,6 +318,17 @@ class App extends Component {
 			ans = `<img src=${img}></img>`
 		} else if(type === list[3]) {
 			ans = '<blockquote><p></p></blockquote>'
+		} else if(type === list[4]) {
+			let title = this.state.title ? this.state.title : 'nothing'
+			ans = `
+				<h1 style="text-align:center;">
+					<span class="text-huge" style="background-color:hsl(0,0%,100%);color:hsl(0,75%,60%);">
+						<strong>
+							${title}
+						</strong>
+					</span>
+				</h1>
+			`
 		}
 		this.datas.push(ans)
 		return ans
@@ -389,6 +410,12 @@ class App extends Component {
 	}
 	saveData(i, editor) {
 		this.datas[i] = editor.getData()
+	}
+
+	titleChange(e) {
+		this.setState({
+			title: e.currentTarget.value
+		})
 	}
 }
 
