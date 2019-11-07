@@ -87,8 +87,8 @@ class App extends Component {
 											this.state.dividerPosition === i && <Divider key={i + "d"}>here?</Divider>
 										}
 										<div
-										onMouseOver={e => this.showIcon(e)}
-										onMouseOut={e => this.hideIcon(e)} 
+										onMouseEnter={e => this.showIcon(e)}
+										onMouseLeave={e => this.hideIcon(e)} 
 										key={i} className="editorWrapper">
 											<div className={classnames({
 													show: v.isReady,
@@ -145,8 +145,8 @@ class App extends Component {
 													marginLeft: '5px',
 													cursor: 'pointer',
 													height: '21px'
-												}} data-index={i} onMouseOver={e => this.itemShow(e)}
-												onMouseOut={e => this.itemHidden(e)}
+												}} data-index={i} onMouseEnter={e => this.itemShow(e)}
+												onMouseLeave={e => this.itemHidden(e)}
 												>
 													<Icon type="more" />
 													<div className={classnames({
@@ -492,16 +492,13 @@ class App extends Component {
 	}
 
 	showIcon(e) {
-		if(this.moveData && !this.hasIconShow) return
-		this.hasIconShow = true
+		if(this.moveData) return
 		e.persist()
 		e.currentTarget.classList.add('iconShow')
 		e.stopPropagation()
 	}
 
 	hideIcon(e) {
-		if(this.moveData) return
-		this.hasIconShow = false
 		e.currentTarget.classList.remove('iconShow')
 		e.stopPropagation()
 	}
