@@ -48,13 +48,13 @@ body {
   border-radius: 4px;
 }
 
-.editorWrapper:hover .iconLeft {
+/*.editorWrapper:hover .iconLeft {
   filter: opacity(1);
 }
 
 .editorWrapper:hover .iconRight {
   filter: opacity(1);
-}
+}*/
 
 .iconLeft {
   filter: opacity(0);
@@ -69,6 +69,10 @@ body {
   filter: opacity(0);
   transition: all 0.2s;
   background: #e8e8e8e8;
+}
+
+.iconShow .iconLeft,.iconShow .iconRight {
+  filter: opacity(1);
 }
 
 .item {

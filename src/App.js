@@ -24,6 +24,7 @@ class App extends Component {
 			title: '',
 			dividerPosition: -1, //0 - editors.length
 		}
+		this.hasIconShow = false
 		this.moveData = null
 		this.editors = []
 		this.datas = []
@@ -47,6 +48,9 @@ class App extends Component {
 		this.moveStart = this.moveStart.bind(this)
 		this.move = this.move.bind(this)
 		this.moveDown = this.moveDown.bind(this)
+		this.showIcon = this.showIcon.bind(this)
+		this.hideIcon = this.hideIcon.bind(this)
+		this.setWordData = this.setWordData.bind(this)
 	}
   	render() {
 		return (
@@ -82,7 +86,10 @@ class App extends Component {
 										{
 											this.state.dividerPosition === i && <Divider key={i + "d"}>here?</Divider>
 										}
-										<div key={i} className="editorWrapper">
+										<div
+										onMouseOver={e => this.showIcon(e)}
+										onMouseOut={e => this.hideIcon(e)} 
+										key={i} className="editorWrapper">
 											<div className={classnames({
 													show: v.isReady,
 													editorContainer: true
@@ -215,7 +222,7 @@ class App extends Component {
 							}}>{v}</li>
 						))
 					}
-					<UpLoader></UpLoader>
+					<UpLoader setWordData = {this.setWordData}></UpLoader>
 					<Input style={{
 						marginTop: '30px',
 						'marginRight': '50px'
@@ -223,6 +230,29 @@ class App extends Component {
 				</ul>	
 			</div>
 		)
+	}
+
+	setWordData(data) {
+		if(data) {
+			let itemList = ['复制', '收藏', '删除']
+			let obj = {
+				editor: InlineEditor,
+				isReady: false,
+				data,
+				itemList,
+				sideTool: false,
+				wrapperDom: null,
+				sumHeight: 0,
+				type: 'editor',
+				isOnlyRead: false
+			}
+			let editors = this.state.editors
+			editors.push(obj)
+			this.datas.push(data)
+			this.setState({
+				editors
+			})
+		}
 	}
 
 	//开始拖动时触发
@@ -461,6 +491,20 @@ class App extends Component {
 		this.drop(e, 1)
 	}
 
+	showIcon(e) {
+		if(this.moveData && !this.hasIconShow) return
+		this.hasIconShow = true
+		e.persist()
+		e.currentTarget.classList.add('iconShow')
+		e.stopPropagation()
+	}
+
+	hideIcon(e) {
+		if(this.moveData) return
+		this.hasIconShow = false
+		e.currentTarget.classList.remove('iconShow')
+		e.stopPropagation()
+	}
 }
 
 export default App;
