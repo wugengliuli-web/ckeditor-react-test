@@ -24,6 +24,7 @@ class App extends Component {
 			title: '',
 			dividerPosition: -1, //0 - editors.length
 		}
+		this.moveData = null
 		this.editors = []
 		this.datas = []
 		this.timer = 300
@@ -43,6 +44,9 @@ class App extends Component {
 		this.delDivider = this.delDivider.bind(this)
 		this.saveData = this.saveData.bind(this)
 		this.titleChange = this.titleChange.bind(this)
+		this.moveStart = this.moveStart.bind(this)
+		this.move = this.move.bind(this)
+		this.moveDown = this.moveDown.bind(this)
 	}
   	render() {
 		return (
@@ -61,6 +65,8 @@ class App extends Component {
 					onDrop={e => this.drop(e)}
 					onDragEnter={e => this.dragEnter(e)}
 					onDragOver={e => this.dragOver(e)}
+					onMouseMove={e => this.move(e)}
+					onMouseUp={e => this.moveDown(e)}
 					style={{
 						width: '90%',
 						minHeight: '900px',
@@ -72,7 +78,7 @@ class App extends Component {
 						{
 							this.state.editors.map((v, i) => {
 								return (
-									<div key={i + "d"}>
+									<div key={i + "d"} >
 										{
 											this.state.dividerPosition === i && <Divider key={i + "d"}>here?</Divider>
 										}
@@ -81,7 +87,10 @@ class App extends Component {
 													show: v.isReady,
 													editorContainer: true
 												})} ref={'wrapper' + i}>
-												<div className="iconLeft" style={{
+												<div
+												data-index={i}
+												onMouseDown={e => this.moveStart(e)}
+												className="iconLeft" style={{
 													height: '21px',
 													width: '21px'
 												}}>
@@ -234,28 +243,34 @@ class App extends Component {
 		})*/
 	}
 	//落到目标区域触发
-	drop(e) {
+	drop(e, a) {
 		this.updateDividerPosition(e)
-
-		let itemList = ['复制', '收藏', '删除']
-		let type = this.type
-		let data = this.createData(type)
-		let obj = {
-			editor: InlineEditor,
-			isReady: false,
-			data,
-			itemList,
-			sideTool: false,
-			wrapperDom: null,
-			sumHeight: 0,
-			type: 'editor',
-			isOnlyRead: this.type === 'Title'
+		let obj
+		if(a) {
+			obj = JSON.parse(JSON.stringify(this.moveData))  //深拷贝
+			obj['editor']= InlineEditor
+			this.moveData = null
+			obj['isReady'] = false
+		} else {
+			let itemList = ['复制', '收藏', '删除']
+			let type = this.type
+			let data = this.createData(type)
+			obj = {
+				editor: InlineEditor,
+				isReady: false,
+				data,
+				itemList,
+				sideTool: false,
+				wrapperDom: null,
+				sumHeight: 0,
+				type: 'editor',
+				isOnlyRead: this.type === 'Title'
+			}
 		}
 		let editors = this.state.editors
-		
 		let dividerPosition = this.state.dividerPosition
 		editors.splice(dividerPosition, 0, obj)
-		this.datas.splice(dividerPosition, 0, data)
+		this.datas.splice(dividerPosition, 0, obj.data)
 		editors = editors.map((v, i) => {
 			v.data = this.datas[i]
 			return v
@@ -417,6 +432,35 @@ class App extends Component {
 			title: e.currentTarget.value
 		})
 	}
+
+
+	moveStart(e) {
+		e.stopPropagation()
+		let index = parseInt(e.currentTarget.getAttribute('data-index'))
+		let editors = this.state.editors
+		this.moveData = JSON.parse(JSON.stringify(editors[index])) 
+		editors.splice(index, 1)
+		this.setState({
+			editors,
+			dividerPosition: index
+		})
+	}
+
+	move(e) {
+		
+		if(!this.moveData) return
+		if(this.timer < 25) {
+			this.timer += 5
+			return
+		}
+		this.updateDividerPosition(e)
+	}
+
+	moveDown(e) {
+		if(!this.moveData) return
+		this.drop(e, 1)
+	}
+
 }
 
 export default App;
