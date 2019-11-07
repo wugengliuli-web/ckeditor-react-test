@@ -58,7 +58,7 @@ class App extends Component {
 				<div
 				className="left" style={{
 					width: '800px',
-					minHeight: '900px',
+					height: '950px',
 					float: 'left',
 					background: '#000',
 					padding: '25px 0',

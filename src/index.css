@@ -4,6 +4,7 @@ body {
 
 .left {
   -webkit-user-select: none;
+  overflow: auto;
 }
 
 .list:hover {
