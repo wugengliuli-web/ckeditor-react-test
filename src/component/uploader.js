@@ -13,7 +13,7 @@ const UpLoader = ({setWordData}) => {
             readFileInputEventAsArrayBuffer(e, function(arrayBuffer) {
                 mammoth.convertToHtml({arrayBuffer: arrayBuffer})
                     .then(result => {
-                        let reg = new RegExp(/(<p>(.*?)<\/p>)|(<table>(.*?)<\/table>)|(<h([1-6])>(.*?)<\/h([1-6])>)/gim)
+                        let reg = new RegExp(/(<p>(.*?)<\/p>)|(<table>(.*?)<\/table>)|(<h([1-6])>(.*?)<\/h([1-6])>)|(<img.*?\/>)/gim)
                         let arr = result.value.match(reg)
                         arr.forEach(v => {
                             v = v.replace(/<a id=(.*?)>(.*?)<\/a>/g, '')
@@ -54,7 +54,7 @@ const UpLoader = ({setWordData}) => {
     return (
         <div style={{
             textAlign: 'center',
-            marginTop: '180px'
+            marginTop: '30px'
         }}>
             <input type='file' onChange={e => loaderFile(e)}></input>
         </div>

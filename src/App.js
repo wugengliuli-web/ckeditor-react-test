@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import img from './img/test.jpg'
 import 'antd/dist/antd.css';
-import { Icon, Spin, Divider, Input } from 'antd'
+import { Icon, Spin, Divider, Input, Button } from 'antd'
 import classnames from 'classnames'
 //import InlineEditor from '@ckeditor/ckeditor5-build-inline/build/ckeditor.js'
 //import '@ckeditor/ckeditor5-build-inline/build/translations/zh-cn'
@@ -22,6 +22,9 @@ class App extends Component {
 			],
 			editors: [],
 			title: '',
+			placeholderConfig: {
+				types: ['aa']
+			},
 			dividerPosition: -1, //0 - editors.length
 		}
 		this.hasIconShow = false
@@ -52,6 +55,7 @@ class App extends Component {
 		this.hideIcon = this.hideIcon.bind(this)
 		this.setWordData = this.setWordData.bind(this)
 	}
+
   	render() {
 		return (
 			<div className="app">
@@ -114,6 +118,7 @@ class App extends Component {
 															'italic',
 															'link',
 															'bulletedList',
+															'placeholder',
 															'numberedList',
 															'fontcolor',
 															'fontbackgroundcolor',
@@ -124,7 +129,8 @@ class App extends Component {
 															'mediaEmbed',
 															'undo',
 															'redo'
-														]
+														],
+														placeholderConfig: this.state.placeholderConfig
 													}}
 													key={i}
 													editor={ v.editor }
@@ -162,19 +168,13 @@ class App extends Component {
 																if(I === 0) {
 																	return <p key={I} style={{
 																		margin: 0,
-																		lineHeight: '40px'
-																	}} data-index={i}>{V}</p>
-																} else if(I === 1) {
-																	return <p key={I} style={{
-																		color: '#3385ff',
-																		margin: 0,
-																		lineHeight: '40px'
+																		lineHeight: '30px'
 																	}} data-index={i}>{V}</p>
 																} else {
 																	return <p key={I} style={{
 																		color: '#f40',
 																		margin: 0,
-																		lineHeight: '40px'
+																		lineHeight: '30px'
 																	}} data-index={i} onClick={(e) => this.del(e)}>{V}</p>
 																}
 															})
@@ -200,41 +200,52 @@ class App extends Component {
 						}
 					</div>
 				</div>
-				<ul className="right" style={{
-					width: '200px',
-					float: 'right',
-					padding: '0'
+				<div style={{
+					float: 'right'
 				}}>
-					{
-						this.state.list.map((v, i) => (
-							<li key={i} draggable={true} onDragStart={e => this.dragStart(e)} className="list" style={{
-								listStyle: 'none',
-								width: '82px',
-								height: '64px',
-								float: 'left',
-								lineHeight: '64px',
-								textAlign: 'center',
-								margin: '5px',
-								background: '#f4f4f4',
-								border:'1px solid #e5e5e5',
-								color: '#000',
-								cursor: 'move',
-							}}>{v}</li>
-						))
-					}
-					<UpLoader setWordData = {this.setWordData}></UpLoader>
-					<Input style={{
-						marginTop: '30px',
-						'marginRight': '50px'
-					}} placeholder="输入标题" value={this.state.title} onChange={e => this.titleChange(e)}  />
-				</ul>	
+					<ul className="right" style={{
+						width: '200px',
+						padding: '0',
+						textAlign: 'center'
+					}}>
+						{
+							this.state.list.map((v, i) => (
+								<li key={i} draggable={true} onDragStart={e => this.dragStart(e)} className="list" style={{
+									listStyle: 'none',
+									width: '82px',
+									height: '64px',
+									float: 'left',
+									lineHeight: '64px',
+									textAlign: 'center',
+									margin: '5px',
+									background: '#f4f4f4',
+									border:'1px solid #e5e5e5',
+									color: '#000',
+									cursor: 'move',
+								}}>{v}</li>
+							))
+						}
+						<UpLoader setWordData = {this.setWordData}></UpLoader>
+						<Input style={{
+							marginTop: '30px',
+							marginRight: '50px'
+						}} placeholder="输入标题" value={this.state.title} onChange={e => this.titleChange(e)}  />
+						<Input style={{
+							marginTop: '30px',
+							marginRight: '50px'
+						}} ref='placeholder' placeholder="输入占位符"  />
+						<Button type="primary" style={{
+							marginTop: '20px'
+						}} onClick={e => this.addPlaceHolder(e)} >添加</Button>
+					</ul>
+				</div>
 			</div>
 		)
 	}
 
 	setWordData(data) {
 		if(data) {
-			let itemList = ['复制', '收藏', '删除']
+			let itemList = ['收藏', '删除']
 			let obj = {
 				editor: InlineEditor,
 				isReady: false,
@@ -282,7 +293,7 @@ class App extends Component {
 			this.moveData = null
 			obj['isReady'] = false
 		} else {
-			let itemList = ['复制', '收藏', '删除']
+			let itemList = ['收藏', '删除']
 			let type = this.type
 			let data = this.createData(type)
 			obj = {
@@ -375,7 +386,6 @@ class App extends Component {
 				</h1>
 			`
 		}
-		this.datas.push(ans)
 		return ans
 	}
 
@@ -454,7 +464,10 @@ class App extends Component {
 		return editors
 	}
 	saveData(i, editor) {
-		this.datas[i] = editor.getData()
+		let data = editor.getData()
+		if(data) {
+			this.datas[i] = editor.getData()
+		}
 	}
 
 	titleChange(e) {
@@ -462,7 +475,6 @@ class App extends Component {
 			title: e.currentTarget.value
 		})
 	}
-
 
 	moveStart(e) {
 		e.stopPropagation()
@@ -477,7 +489,6 @@ class App extends Component {
 	}
 
 	move(e) {
-		
 		if(!this.moveData) return
 		if(this.timer < 25) {
 			this.timer += 5
@@ -501,6 +512,22 @@ class App extends Component {
 	hideIcon(e) {
 		e.currentTarget.classList.remove('iconShow')
 		e.stopPropagation()
+	}
+
+	addPlaceHolder = e => {
+		let val = this.refs.placeholder.input.value
+		if(val) {
+			this.setState(prveState => ({
+				placeholderConfig: {
+					types: [
+						...prveState.placeholderConfig.types,
+						val
+					]
+				}
+			}), () => {
+				console.log(this.state.placeholderConfig.types)
+			})
+		}
 	}
 }
 
