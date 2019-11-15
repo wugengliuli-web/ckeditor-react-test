@@ -1,62 +1,66 @@
 import React from 'react'
-import mammoth from '../lib/mammoth.browser'
+import { Upload, Icon, message } from 'antd';
+import axios from 'axios'
 
-
+const { Dragger } = Upload
 
 const UpLoader = ({setWordData}) => {
-    function loaderFile(e) {
-        let target = e.target
-        if(target.files.length === 0) return 
-        let file = target.files[0]
-        let fileName = file.name
-        if(/doc(x)$/.test(fileName)) {  //如果是word文档
-            readFileInputEventAsArrayBuffer(e, function(arrayBuffer) {
-                mammoth.convertToHtml({arrayBuffer: arrayBuffer})
-                    .then(result => {
-                        let reg = new RegExp(/(<p>(.*?)<\/p>)|(<table>(.*?)<\/table>)|(<h([1-6])>(.*?)<\/h([1-6])>)|(<img.*?\/>)/gim)
-                        let arr = result.value.match(reg)
-                        arr.forEach(v => {
-                            v = v.replace(/<a id=(.*?)>(.*?)<\/a>/g, '')
-                            let content = /<.*>(.*?)<\/.*>/.exec(v)
-                            if(content[0] !== '<p></p>') {
-                                setWordData(v)
-                            }
-                        })
-                        target.value = ''
-                    })
-                    .done();
+    const props = {
+        name: 'word',
+        action: '',
+        showUploadList: false,
+        beforeUpload(file) {
+            let name = file.name
+            if(/doc(x)$/.test(name)) return true
+            else {
+                message.error('只支持上传word')
+                return false
+            }
+        },
+        customRequest(info) {
+            console.time('上传')
+            let fd = new FormData()
+            fd.append('word', info.file)
+            axios.post('http://localhost:5000/data/word', fd).then(res => {
+                let { status, data, title } = res.data
+                if(status === 200) {
+                    let val = data.value
+                    title = title.slice(0, -5)
+                    let reg = new RegExp(/(<ul>(.*?)<\/ul>)|(<ol>(.*?)<\/ol>)|(<p>(.*?)<\/p>)|(<table>(.*?)<\/table>)|(<h([1-6])>(.*?)<\/h([1-6])>)|(<img.*?\/>)/gim)
+                    let arr = val.match(reg)
+                    setWordData({title, arr})
+                    message.success(`上传成功`);
+                    console.timeEnd('上传')
+                } else {
+                    message.success(`上传失败`);
+                }
             })
+        },
+        onChange(info) {
+            const { status } = info.file
+            if (status !== 'uploading') {
+                
+            }
+            if (status === 'done') {
+                message.success(`上传成功`);
+            } else if (status === 'error') {
+                message.error(`上传失败`);
+            }
         }
-    }
-    
-    function readFileInputEventAsArrayBuffer(event, callback) {
-        var file = event.target.files[0];
-    
-        var reader = new FileReader();
-        
-        reader.onload = function(loadEvent) {
-            var arrayBuffer = loadEvent.target.result;
-            callback(arrayBuffer);
-        };
-        
-        reader.readAsArrayBuffer(file);
-    }
-    
-    
-    function escapeHtml(value) {
-        return value
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
     }
     
     return (
         <div style={{
             textAlign: 'center',
-            marginTop: '30px'
+            marginTop: '30px',
+            marginRight: '20px'
         }}>
-            <input type='file' onChange={e => loaderFile(e)}></input>
+            <Dragger {...props}>
+                <p className="ant-upload-drag-icon">
+                    <Icon type="inbox" />
+                </p>
+                <p className="ant-upload-text">点击或者拖动文件到此处</p>
+            </Dragger>
         </div>
     )
 }

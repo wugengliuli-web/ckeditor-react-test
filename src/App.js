@@ -225,31 +225,51 @@ class App extends Component {
 								}}>{v}</li>
 							))
 						}
-						<UpLoader setWordData = {this.setWordData}></UpLoader>
+						
 						<Input style={{
 							marginTop: '30px',
 							marginRight: '50px'
 						}} placeholder="输入标题" value={this.state.title} onChange={e => this.titleChange(e)}  />
-						<Input style={{
-							marginTop: '30px',
-							marginRight: '50px'
-						}} ref='placeholder' placeholder="输入占位符"  />
-						<Button type="primary" style={{
-							marginTop: '20px'
-						}} onClick={e => this.addPlaceHolder(e)} >添加</Button>
+
+						<UpLoader setWordData = {this.setWordData}></UpLoader>
 					</ul>
 				</div>
 			</div>
 		)
 	}
 
-	setWordData(data) {
-		if(data) {
-			let itemList = ['收藏', '删除']
-			let obj = {
+	setWordData({title, arr}) {
+		let editors = this.state.editors
+		let obj
+		let itemList = ['收藏', '删除']
+
+		obj = {
+			editor: InlineEditor,
+			isReady: false,
+			data: title,
+			itemList,
+			sideTool: false,
+			wrapperDom: null,
+			sumHeight: 0,
+			type: 'editor',
+			isOnlyRead: true
+		}
+		obj.data = `
+			<h1 style="text-align:center;">
+				<span class="text-huge" style="background-color:hsl(0,0%,100%);color:hsl(0,75%,60%);">
+					<strong>
+						${obj.data}
+					</strong>
+				</span>
+			</h1>
+		`
+		editors.push(obj)
+		this.datas.push(obj.data)
+		arr.forEach(item => {
+			obj = {
 				editor: InlineEditor,
 				isReady: false,
-				data,
+				data: item,
 				itemList,
 				sideTool: false,
 				wrapperDom: null,
@@ -257,13 +277,12 @@ class App extends Component {
 				type: 'editor',
 				isOnlyRead: false
 			}
-			let editors = this.state.editors
 			editors.push(obj)
-			this.datas.push(data)
-			this.setState({
-				editors
-			})
-		}
+			this.datas.push(item)
+		})
+		this.setState({
+			editors
+		})
 	}
 
 	//开始拖动时触发
